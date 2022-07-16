@@ -45,13 +45,13 @@ namespace MonoSandbox.ComputerInterface
                 str.MakeBar('-', SCREEN_WIDTH, 0, "e6e6ff10");
                 str.EndAlign().AppendLines(1);
                 str.AppendClr("  Thruster Strength:", mainColour).EndColor();
-                str.AppendLine(selectionHandler.GetIndicatedText(2, MonoSandbox.Plugin.thrusterManager.multiplier.ToString()));
+                str.AppendLine(selectionHandler.GetIndicatedText(0, MonoSandbox.Plugin.thrusterManager.multiplier.ToString()));
                 str.AppendClr("  Explosion Strength:", mainColour).EndColor();
-                str.AppendLine(selectionHandler.GetIndicatedText(2, MonoSandbox.Plugin.C4Control.multiplier.ToString()));
+                str.AppendLine(selectionHandler.GetIndicatedText(1, MonoSandbox.Plugin.C4Control.multiplier.ToString()));
                 str.AppendClr("  Balloon Strength: ", mainColour).EndColor();
                 str.AppendLine(selectionHandler.GetIndicatedText(2, MonoSandbox.Plugin.balloonManager.balloonPower.ToString()));
                 str.AppendClr("  Weapon Strength: ", mainColour).EndColor();
-                str.AppendLine(selectionHandler.GetIndicatedText(2, MonoSandbox.Plugin.weaponManager.weaponForce.ToString()));
+                str.AppendLine(selectionHandler.GetIndicatedText(3, MonoSandbox.Plugin.weaponManager.weaponForce.ToString()));
                 str.AppendLines(3);
                 str.MakeBar('-', SCREEN_WIDTH, 0, "e6e6ff10");
                 str.AppendClr("Special thanks to Walter Bennet", mainColour).EndColor().AppendLine();
