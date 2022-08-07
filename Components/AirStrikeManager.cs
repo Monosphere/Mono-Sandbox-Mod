@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using UnityEngine.XR;
 using UnityEngine;
-using Utilla;
-using BepInEx;
 
 public class AirStrikeManager : MonoBehaviour
 {
@@ -19,14 +14,9 @@ public class AirStrikeManager : MonoBehaviour
     public GameObject ExplodeModel = null;
     GameObject itemsFolder = null;
 
-
     void OnGameInitialized(object sender, EventArgs e)
     {
         itemsFolder = GameObject.Find("ItemFolderMono");
-    }
-
-    void Start()
-    {
     }
 
     void Update()
@@ -87,6 +77,12 @@ public class Airstrike : MonoBehaviour
     public GameObject ExplosionOBJ;
     private bool canExplode = true;
     public static float speed = 20;
+
+    void Start()
+    {
+        Debug.Log("oh fuck theres an airstrike");
+    }
+
     void Update()
     {
         var newspeed = speed * Time.deltaTime;

@@ -5,7 +5,7 @@
     /// </summary>
     internal class PluginInfo
     {
-        public const string GUID = "MonoSandbox";
+        public const string GUID = "MonoSandboxButDevSlightlyEditedIt";
         public const string Name = "MonoSandbox";
         public const string Version = "1.0.0";
     }

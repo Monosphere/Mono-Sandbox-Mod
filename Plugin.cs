@@ -1,5 +1,4 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +7,16 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
 using Utilla;
+using HarmonyLib;
 using Bepinject;
+using MonoSandbox.ComputerInterface;
+
+/*
+
+listened to this banger while cleaning up the mod https://www.youtube.com/watch?v=cGuDpoJNImA&ab_channel=TobyFox-Topic
+thank you mono - dev.
+
+*/
 
 namespace MonoSandbox
 {
@@ -62,13 +70,22 @@ namespace MonoSandbox
         PhysGunManager physGunManager;
         List<InputDevice> list = new List<InputDevice>();
 
+        Harmony harmony;
+
         void OnEnable()
         {
             /* Set up your mod here */
             /* Code here runs at the start and whenever your mod is enabled*/
 
-            HarmonyPatches.ApplyHarmonyPatches();
-            Utilla.Events.GameInitialized += OnGameInitialized;
+            // no idea why you would use harmony but okay mono
+
+            if (harmony == null)
+            {
+                harmony = new Harmony(PluginInfo.GUID);
+            }
+
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            Events.GameInitialized += OnGameInitialized;
         }
 
         void OnDisable()
@@ -77,13 +94,19 @@ namespace MonoSandbox
             /* This provides support for toggling mods with ComputerInterface, please implement it :) */
             /* Code here runs whenever your mod is disabled (including if it disabled on startup)*/
 
-            HarmonyPatches.RemoveHarmonyPatches();
-            Utilla.Events.GameInitialized -= OnGameInitialized;
+            // no idea why you would use harmony but okay mono
+
+            if (harmony != null)
+            {
+                harmony.UnpatchSelf();
+            }
+
+            Events.GameInitialized -= OnGameInitialized;
         }
 
         private void Awake()
         {
-            Zenjector.Install<ComputerInterface.MainInstaller>().OnProject();
+            Zenjector.Install<MainInstaller>().OnProject();
         }
 
         void OnGameInitialized(object sender, EventArgs e)
@@ -159,16 +182,14 @@ namespace MonoSandbox
         }
 
         /* This attribute tells Utilla to call this method when a modded room is joined */
-        [ModdedGamemodeJoin]
-        public void OnJoin(string gamemode)
+        [ModdedGamemodeJoin] public void OnJoin(string gamemode)
         {
             inRoom = true;
             ListManager.objectButtons = new bool[12];
         }
 
         /* This attribute tells Utilla to call this method when a modded room is left */
-        [ModdedGamemodeLeave]
-        public void OnLeave(string gamemode)
+        [ModdedGamemodeLeave] public void OnLeave(string gamemode)
         {
             /* Deactivate your mod here */
             /* This code will run regardless of if the mod is enabled*/
@@ -180,10 +201,7 @@ namespace MonoSandbox
             monoList.SetActive(false);
             inRoom = false;
         }
-        void RemoveEdit()
-        {
 
-        }
         void Update()
         {
             #region List
@@ -298,9 +316,8 @@ namespace MonoSandbox
                 }
             }
             #endregion
-
-
         }
+
         #region List & Buttons
         public class ListManager : MonoBehaviour
         {
@@ -335,15 +352,14 @@ namespace MonoSandbox
                 SideButtonsParent = Instantiate(new GameObject());
                 SideButtonsParent.name = "SideButtons";
                 SideButtonsParent.transform.SetParent(MenuParent.transform, false);
-                //ObjectsParent.transform.eulerAngles = new Vector3(0, -90, 0);
                 AddPage(objectNames, "Objects", 4, ObjectsParent, 0);
                 AddPage(weaponNames, "Weapon", 4, WeaponsParent, 1);
                 AddPage(toolNames, "Tools", 4, ToolsParent, 2);
                 AddPage(utilNames, "Utils", 4, UtilsParent, 3);
-                Plugin.monoList.transform.SetParent(Plugin.hand.transform, false);
-                Plugin.monoList.transform.localPosition = new Vector3(0, 0, 0.05f);
-                Plugin.monoList.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
-                Plugin.monoList.transform.localEulerAngles = new Vector3(180, -90, 180);
+                monoList.transform.SetParent(Plugin.hand.transform, false);
+                monoList.transform.localPosition = new Vector3(0, 0, 0.05f);
+                monoList.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
+                monoList.transform.localEulerAngles = new Vector3(180, -90, 180);
             }
 
             void Update()
@@ -468,7 +484,7 @@ namespace MonoSandbox
             {
                 if (ListManager.currentPage == page) { gameObject.GetComponent<Renderer>().material.color = Color.blue; } else { gameObject.GetComponent<Renderer>().material.color = Color.white; }
             }
-            private void OnTriggerEnter(Collider other)
+            private void OnTriggerEnter()
             {
                 Debug.Log("Moved to page  " + page);
                 ListManager.currentPage = page;

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine.XR;
 using UnityEngine;
-using Utilla;
-using BepInEx;
 
 public class FreezeManager : MonoBehaviour
 {
@@ -43,7 +40,7 @@ public class FreezeManager : MonoBehaviour
                             Rigidbody freezeRB = hitInfo.transform.gameObject.GetComponent<Rigidbody>();
                             if (freezeRB.constraints == RigidbodyConstraints.None)
                             {
-                                freezeRB.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY;
+                                freezeRB.constraints = RigidbodyConstraints.FreezeAll;
                                 canPlace = false;   
                             }
                             else
