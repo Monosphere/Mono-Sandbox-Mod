@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using UnityEngine.XR;
 using UnityEngine;
-using Utilla;
-using BepInEx;
 
 public class C4Manager : MonoBehaviour
 {
