@@ -7,6 +7,6 @@
     {
         public const string GUID = "MonoSandboxButDevSlightlyEditedIt";
         public const string Name = "MonoSandbox";
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.2";
     }
 }
