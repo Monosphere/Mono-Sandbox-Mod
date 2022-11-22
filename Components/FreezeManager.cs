@@ -19,8 +19,7 @@ public class FreezeManager : MonoBehaviour
 
     void Update()
     {
-        RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
+        RaycastHit hitInfo = MonoSandbox.PluginInfo.raycastHit;
         if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");
@@ -88,8 +87,7 @@ public class GravityManager : MonoBehaviour
 
     void Update()
     {
-        RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
+        RaycastHit hitInfo = MonoSandbox.PluginInfo.raycastHit;
         if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");

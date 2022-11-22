@@ -1,6 +1,11 @@
 ﻿using System;
 using UnityEngine.XR;
 using UnityEngine;
+using BepInEx;
+using MonoSandbox;
+using MonoSandbox.Components;
+using Steamworks;
+using UnityEngine.InputSystem.HID;
 
 public class WeaponManager : MonoBehaviour
 {
@@ -18,11 +23,11 @@ public class WeaponManager : MonoBehaviour
     public bool primary;
     public bool secondary;
 
-    // "Revolver", "Shotgun", "Melon Cannon", "Sniper", "C4", "Airstrike", "Laser Gun", "Banana Gun" 
+    // "Weld", "Thruster", "Spring", "Gravity Gun", "Colorize", "Freeze", "Toggle Gravity", "Balloon"
     public int currentWeapon = 0;
     private int holdingWeapon = 100;
 
-    private Color[] colourArray = new Color[6] { Color.white,Color.blue,Color.red,Color.green,Color.magenta, Color.black };
+    private Color[] colourArray = new Color[9] { Color.white, Color.red, new Color(1.0f, 0.5f, 0), Color.yellow, Color.green, Color.blue, Color.magenta, Color.black, Color.grey };
     private int currentColour = 0;
     private bool isLit = true;
 
@@ -59,7 +64,7 @@ public class WeaponManager : MonoBehaviour
     {
         staticweaponForce = weaponForce;
         RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
+        hitInfo = MonoSandbox.PluginInfo.raycastHit;
         InputDevices.GetDeviceAtXRNode(XRNode.RightHand).TryGetFeatureValue(CommonUsages.trigger, out trigger);
         InputDevices.GetDeviceAtXRNode(XRNode.RightHand).TryGetFeatureValue(CommonUsages.primaryButton, out primary);
         InputDevices.GetDeviceAtXRNode(XRNode.RightHand).TryGetFeatureValue(CommonUsages.secondaryButton, out secondary);
@@ -69,8 +74,8 @@ public class WeaponManager : MonoBehaviour
         }
         if(rightHand == null || leftHand == null)
         {
-            rightHand = GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.R/upper_arm.R/forearm.R/hand.R/palm.01.R");
-            leftHand = GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.L/upper_arm.L/forearm.L/hand.L/palm.01.L");
+            rightHand = MonoSandbox.PluginInfo.rightHand;
+            leftHand = MonoSandbox.PluginInfo.leftHand;
         }
         if(editMode && holdingWeapon != currentWeapon)
         {
@@ -90,6 +95,7 @@ public class WeaponManager : MonoBehaviour
                         canFire = false;
                         lastShot = Time.time;
                         HeldWeapon.GetComponent<AudioSource>().Play();
+                        HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().simulationSpace = ParticleSystemSimulationSpace.World;
                         HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().Play();
                         RaycastHit hit;
                         Physics.Raycast(HeldWeapon.transform.GetChild(0).position, HeldWeapon.transform.GetChild(0).forward, out hit);
@@ -116,6 +122,7 @@ public class WeaponManager : MonoBehaviour
                         canFire = false;
                         lastShot = Time.time;
                         HeldWeapon.GetComponent<AudioSource>().Play();
+                        HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().simulationSpace = ParticleSystemSimulationSpace.World;
                         HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().Play();
                         RaycastHit hit;
                         Physics.Raycast(HeldWeapon.transform.GetChild(0).position, -HeldWeapon.transform.GetChild(0).up, out hit);
@@ -146,6 +153,7 @@ public class WeaponManager : MonoBehaviour
                         lastShot = Time.time;
                         GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().AddForce(-HeldWeapon.transform.GetChild(0).forward * weaponForce * 5500f);
                         HeldWeapon.GetComponent<AudioSource>().Play();
+                        HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().simulationSpace = ParticleSystemSimulationSpace.World;
                         HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().Play();
                         RaycastHit hit;
                         Physics.Raycast(HeldWeapon.transform.GetChild(0).position, HeldWeapon.transform.GetChild(0).forward, out hit);
@@ -166,6 +174,7 @@ public class WeaponManager : MonoBehaviour
                             hit.transform.GetComponent<Explode>().Explosion();
                         }
                         Destroy(hitPoint, 3);
+                        HapticManager.ShootWeaponHaptic();
                     }
                 }
                 if (Time.time > lastShot + 1.25f)
@@ -175,19 +184,23 @@ public class WeaponManager : MonoBehaviour
                         canFire = false;
                         lastShot = Time.time;
                         HeldWeapon.GetComponent<AudioSource>().Play();
+                        HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().simulationSpace = ParticleSystemSimulationSpace.World;
                         HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().Play();
                         GameObject melon = Instantiate(MelonModel);
                         melon.transform.position = HeldWeapon.transform.GetChild(1).position;
                         melon.transform.GetComponent<Rigidbody>().AddForce(rightHand.transform.up * 2500f);
+                        MaterialUtil.FixStandardShadersInObject(MelonExplodeModel);
                         Bullet melonBullet = melon.AddComponent<Bullet>();
                         melonBullet.gunIndex = 2;
                         melonBullet.melonExplode = MelonExplodeModel;
+                        HapticManager.ShootWeaponHaptic();
                     }
                     if(holdingWeapon == 3)
                     {
                         canFire = false;
                         lastShot = Time.time;
                         HeldWeapon.GetComponent<AudioSource>().Play();
+                        HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().simulationSpace = ParticleSystemSimulationSpace.World;
                         HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().Play();
                         GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>().AddForce(-HeldWeapon.transform.GetChild(0).forward * weaponForce * 7500f);
                         RaycastHit hit;
@@ -209,14 +222,20 @@ public class WeaponManager : MonoBehaviour
                             hit.transform.GetComponent<Explode>().Explosion();
                         }
                         Destroy(hitPoint, 3);
+                        HapticManager.ShootWeaponHaptic();
                     }
                 }
+            }
+            if(holdingWeapon == 4)
+            {
+                HapticManager.LaserGunHaptic();
             }
             if(holdingWeapon == 4 && canLaser == true)
             {
                 canLaser = false;
                 HeldWeapon.GetComponent<AudioSource>().loop = true;
                 HeldWeapon.GetComponent<AudioSource>().Play();
+                //HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().simulationSpace = ParticleSystemSimulationSpace.World;
                 HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().Play();
             }
             if (holdingWeapon == 6 && canFire == true)
@@ -226,11 +245,12 @@ public class WeaponManager : MonoBehaviour
                 //HeldWeapon.GetComponent<AudioSource>().Play();
                 //HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().Play();
                 RaycastHit hit;
-                Physics.Raycast(HeldWeapon.transform.GetChild(6).position, HeldWeapon.transform.GetChild(6).forward, out hit);
+                Physics.Raycast(HeldWeapon.transform.GetChild(6).position, -HeldWeapon.transform.GetChild(6).right, out hit, 200);
                 if(hit.transform.name.Contains("MonoObject") && hit.transform.GetComponent<Renderer>() != null)
                 {
                     hit.transform.GetComponent<Renderer>().material.color = colourArray[currentColour];
                 }
+                HapticManager.ShootWeaponHaptic();
             }
         }
         else { canFire = true; canLaser = true; if (holdingWeapon == 4) { HeldWeapon.GetComponent<AudioSource>().Stop(); HeldWeapon.transform.GetComponentInChildren<ParticleSystem>().Stop(); } }
@@ -378,7 +398,7 @@ public class PhysGunManager : MonoBehaviour
     void OnGameInitialized(object sender, EventArgs e)
     {
         itemsFolder = GameObject.Find("ItemFolderMono");
-        rightHand = GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.R/upper_arm.R/forearm.R/hand.R/palm.01.R");
+        rightHand = MonoSandbox.PluginInfo.rightHand;
     }
 
     void Start()
@@ -393,7 +413,7 @@ public class PhysGunManager : MonoBehaviour
         if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");
-            rightHand = GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.R/upper_arm.R/forearm.R/hand.R/palm.01.R");
+            rightHand = MonoSandbox.PluginInfo.rightHand;
         }
         if (editMode)
         {
@@ -505,17 +525,24 @@ class Bullet : MonoBehaviour
             hasCollided = true;
             if (gunIndex == 2)
             {
+                if (other.transform.GetComponent<Enemy>() != null)
+                    other.transform.GetComponent<Enemy>().Damage(2f, 5f, 3f);
+
                 gameObject.GetComponent<Renderer>().enabled = false;
                 exploded = Instantiate(melonExplode);
                 exploded.transform.position = transform.position;
                 foreach (Transform child in exploded.transform)
                 {
-                    child.GetComponent<Rigidbody>().AddExplosionForce(700f, transform.position, 6f);
+                    child.GetComponent<Rigidbody>().mass = 0.2f;
+                    child.GetComponent<Rigidbody>().AddExplosionForce(700, transform.position, 6f);
                 }
                 Invoke("DestroyMelon", 3f);
             }
             if (gunIndex == 0)
             {
+                if (other.transform.GetComponent<Enemy>() != null)
+                    other.transform.GetComponent<Enemy>().Damage(2f, 5f, 3f);
+
                 Collider[] colliders = Physics.OverlapSphere(transform.position, 0.5f);
                 foreach (Collider nearyby in colliders)
                 {

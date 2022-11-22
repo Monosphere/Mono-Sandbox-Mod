@@ -5,17 +5,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="Assets\listpack" />
-		<None Remove="Assets\objects2" />
-		<None Remove="Assets\weapons2" />
-		<None Remove="Assets\weaponspack" />
+	  <None Remove="Assets\listpack" />
+	  <None Remove="Assets\objects2" />
+	  <None Remove="Assets\weapons2" />
+	  <None Remove="Assets\weaponspack" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="Assets\listpack" />
-		<EmbeddedResource Include="Assets\objects2" />
-		<EmbeddedResource Include="Assets\weapons2" />
-		<EmbeddedResource Include="Assets\weaponspack" />
+	  <EmbeddedResource Include="Assets\listpack" />
+	  <EmbeddedResource Include="Assets\objects2" />
+	  <EmbeddedResource Include="Assets\weapons2" />
+	  <EmbeddedResource Include="Assets\weaponspack" />
 	</ItemGroup>
 
 	<ItemGroup>

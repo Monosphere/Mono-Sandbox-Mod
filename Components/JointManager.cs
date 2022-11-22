@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine.XR;
 using UnityEngine;
+using MonoSandbox.Components;
 
 public class SpringManager : MonoBehaviour
 {
@@ -26,7 +27,7 @@ public class SpringManager : MonoBehaviour
     void Update()
     {
         RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
+        hitInfo = MonoSandbox.PluginInfo.raycastHit;
         if (Cursor != null)
         {
             Cursor.transform.position = hitInfo.point;
@@ -177,7 +178,7 @@ public class SpringManager : MonoBehaviour
         void Update()
         {
             RaycastHit hitInfo;
-            Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
+            hitInfo = MonoSandbox.PluginInfo.raycastHit;
             if (itemsFolder == null)
             {
                 itemsFolder = GameObject.Find("ItemFolderMono");
@@ -274,8 +275,7 @@ public class SpringManager : MonoBehaviour
                     Cursor.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
                     Destroy(Cursor.GetComponent<SphereCollider>());
                 }
-                RaycastHit hitInfo;
-                Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
+                RaycastHit hitInfo = MonoSandbox.PluginInfo.raycastHit;
                 Cursor.transform.position = hitInfo.point;
                 Cursor.transform.forward = hitInfo.normal;
                 InputDevices.GetDeviceAtXRNode(XRNode.RightHand).TryGetFeatureValue(CommonUsages.primaryButton, out primaryDown);
@@ -304,6 +304,8 @@ public class SpringManager : MonoBehaviour
                             lineRenderer.startWidth = 0.02f;
                             lineRenderer.endWidth = 0.02f;
                             lineRenderer.positionCount = 2;
+
+                            MaterialUtil.FixStandardShadersInObject(BalloonOBJ);
 
                             SpringLine line = BalloonOBJ.AddComponent<SpringLine>();
                             line.makeLine = false;

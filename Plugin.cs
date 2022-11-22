@@ -1,7 +1,7 @@
 ﻿using BepInEx;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,13 +10,7 @@ using Utilla;
 using HarmonyLib;
 using Bepinject;
 using MonoSandbox.ComputerInterface;
-
-/*
-
-listened to this banger while cleaning up the mod https://www.youtube.com/watch?v=cGuDpoJNImA&ab_channel=TobyFox-Topic
-thank you mono - dev.
-
-*/
+using MonoSandbox.Components;
 
 namespace MonoSandbox
 {
@@ -26,6 +20,7 @@ namespace MonoSandbox
 
     /* This attribute tells Utilla to look for [ModdedGameJoin] and [ModdedGameLeave] */
     [ModdedGamemode]
+    [Description("HauntedModMenu")]
     [BepInDependency("org.legoandmars.gorillatag.utilla", "1.5.0")]
     [BepInPlugin(PluginInfo.GUID, PluginInfo.Name, PluginInfo.Version)]
     public class Plugin : BaseUnityPlugin
@@ -74,38 +69,71 @@ namespace MonoSandbox
 
         void OnEnable()
         {
-            /* Set up your mod here */
-            /* Code here runs at the start and whenever your mod is enabled*/
-
-            // no idea why you would use harmony but okay mono
-
             if (harmony == null)
             {
                 harmony = new Harmony(PluginInfo.GUID);
+                harmony.PatchAll(Assembly.GetExecutingAssembly());
             }
 
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
-            Events.GameInitialized += OnGameInitialized;
+            if (canStart)
+            {
+                ragdollManager.editMode = false;
+                springManager.editMode = false;
+                weaponManager.editMode = false;
+                thrusterManager.editMode = false;
+                C4Control.editMode = false;
+                boxManager.editMode = false;
+                sphereManager.editMode = false;
+                beanManager.editMode = false;
+                crateManager.editMode = false;
+                weldManager.editMode = false;
+                bathManager.editMode = false;
+                balloonManager.editMode = false;
+                freezeManager.editMode = false;
+                physGunManager.editMode = false;
+                gravityManager.editMode = false;
+                airstrikeManager.editMode = false;
+                couchManager.editMode = false;
+                ListManager.objectButtons = new bool[12];
+            }
         }
 
         void OnDisable()
         {
-            /* Undo mod setup here */
-            /* This provides support for toggling mods with ComputerInterface, please implement it :) */
-            /* Code here runs whenever your mod is disabled (including if it disabled on startup)*/
-
-            // no idea why you would use harmony but okay mono
-
             if (harmony != null)
             {
                 harmony.UnpatchSelf();
             }
 
-            Events.GameInitialized -= OnGameInitialized;
+            if (canStart)
+            {
+                ragdollManager.editMode = false;
+                springManager.editMode = false;
+                weaponManager.editMode = false;
+                thrusterManager.editMode = false;
+                C4Control.editMode = false;
+                boxManager.editMode = false;
+                sphereManager.editMode = false;
+                beanManager.editMode = false;
+                crateManager.editMode = false;
+                weldManager.editMode = false;
+                bathManager.editMode = false;
+                balloonManager.editMode = false;
+                freezeManager.editMode = false;
+                physGunManager.editMode = false;
+                gravityManager.editMode = false;
+                airstrikeManager.editMode = false;
+                couchManager.editMode = false;
+                ListManager.objectButtons = new bool[12];
+            }
+
+            if (monoList != null)
+                monoList.SetActive(enabled);
         }
 
-        private void Awake()
+        public void Awake()
         {
+            Events.GameInitialized += OnGameInitialized;
             Zenjector.Install<MainInstaller>().OnProject();
         }
 
@@ -114,16 +142,14 @@ namespace MonoSandbox
             itemsFolder = Instantiate(new GameObject());
             itemsFolder.transform.position = Vector3.zero;
             itemsFolder.name = "ItemFolderMono";
-            hand = GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.L/upper_arm.L/forearm.L/hand.L/palm.01.L");
+
+            hand = PluginInfo.leftHand;
+
             InputDevices.GetDevicesWithCharacteristics(UnityEngine.XR.InputDeviceCharacteristics.HeldInHand | UnityEngine.XR.InputDeviceCharacteristics.Right | UnityEngine.XR.InputDeviceCharacteristics.Controller, list);
-            Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream("MonoSandbox.Assets.weapons2");
-            WeaponBundle1 = AssetBundle.LoadFromStream(str);
-            Stream str2 = Assembly.GetExecutingAssembly().GetManifestResourceStream("MonoSandbox.Assets.objects2");
-            ObjectBundle2 = AssetBundle.LoadFromStream(str2);
-            Stream str3 = Assembly.GetExecutingAssembly().GetManifestResourceStream("MonoSandbox.Assets.listpack");
-            listpack = AssetBundle.LoadFromStream(str3);
-            Stream str4 = Assembly.GetExecutingAssembly().GetManifestResourceStream("MonoSandbox.Assets.weaponspack");
-            WeaponBundle2 = AssetBundle.LoadFromStream(str4);
+            WeaponBundle1 = AssetBundle.LoadFromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("MonoSandbox.Assets.weapons2"));
+            ObjectBundle2 = AssetBundle.LoadFromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("MonoSandbox.Assets.objects2"));
+            listpack = AssetBundle.LoadFromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("MonoSandbox.Assets.listpack"));
+            WeaponBundle2 = AssetBundle.LoadFromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("MonoSandbox.Assets.weaponspack"));
 
             #region CreateManagers
             C4Control = itemsFolder.AddComponent<C4Manager>();
@@ -132,6 +158,7 @@ namespace MonoSandbox
             boxManager = itemsFolder.AddComponent<BoxManager>();
             sphereManager = itemsFolder.AddComponent<SphereManager>();
             sphereManager.softbodySphere = WeaponBundle2.LoadAsset<GameObject>("WeaponPack 1").transform.GetChild(23).gameObject;
+            sphereManager.entityOBJ = WeaponBundle2.LoadAsset<GameObject>("WeaponPack 1").transform.GetChild(24).gameObject;
             beanManager = itemsFolder.AddComponent<BeanManager>();
             beanManager.explosionOBJ = WeaponBundle2.LoadAsset<GameObject>("WeaponPack 1").transform.GetChild(10).gameObject;
             beanManager.barrelOBJ = WeaponBundle2.LoadAsset<GameObject>("WeaponPack 1").transform.GetChild(12).gameObject;
@@ -176,8 +203,34 @@ namespace MonoSandbox
             Listmanager = monoList.AddComponent<ListManager>();
             ListManager.ButtonTextBasic = listpack.LoadAsset<GameObject>("ListPack").transform.GetChild(1).gameObject;
             monoList.name = "List";
+            foreach(Renderer ren in monoList.transform.GetComponentsInChildren<Renderer>(true))
+            {
+                MaterialUtil.FixStandardShader(ren);
+            }
             monoList.SetActive(false);
+            monoList.transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<Text>().text = string.Format("{0} Mod v{1}", PluginInfo.Name, PluginInfo.Version);
             #endregion
+
+            if (canStart)
+            {
+                ragdollManager.editMode = false;
+                springManager.editMode = false;
+                weaponManager.editMode = false;
+                thrusterManager.editMode = false;
+                C4Control.editMode = false;
+                boxManager.editMode = false;
+                sphereManager.editMode = false;
+                beanManager.editMode = false;
+                crateManager.editMode = false;
+                weldManager.editMode = false;
+                bathManager.editMode = false;
+                balloonManager.editMode = false;
+                freezeManager.editMode = false;
+                physGunManager.editMode = false;
+                gravityManager.editMode = false;
+                airstrikeManager.editMode = false;
+                couchManager.editMode = false;
+            }
 
         }
 
@@ -202,15 +255,18 @@ namespace MonoSandbox
             inRoom = false;
         }
 
-        void Update()
+        internal void FixedUpdate()
         {
+            if (GorillaLocomotion.Player.Instance != null)
+                Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out PluginInfo.raycastHit, GorillaLocomotion.Player.Instance.locomotionEnabledLayers);
+
             #region List
-            if (inRoom)
+            if (inRoom && enabled)
             {
                 InputDevices.GetDeviceAtXRNode(XRNode.LeftHand).TryGetFeatureValue(CommonUsages.grip, out grip);
                 if (grip > 0.6f)
                 {
-                    if (monoList.activeInHierarchy&&canStart)
+                    if (monoList.activeInHierarchy && canStart)
                     {
                         if (ListManager.objectButtons[0]) { boxManager.editMode = true; boxManager.isPlane = false; } else { if (!ListManager.objectButtons[7]) { boxManager.editMode = false; } }
                         if (ListManager.objectButtons[1]) { sphereManager.editMode = true; sphereManager.isSoftbody = false; } else { if (!ListManager.objectButtons[11]) { sphereManager.editMode = false; } }
@@ -287,6 +343,14 @@ namespace MonoSandbox
                             weaponManager.editMode = false;
                         }
 
+                        if (ListManager.funButtons[0])
+                        {
+                            sphereManager.editMode = true;
+                            sphereManager.isEnemy = true;
+                            sphereManager.isBouncy = false;
+                            sphereManager.isSoftbody = false;
+                        }
+
                     }
                     else { monoList.SetActive(true); }
                 }
@@ -317,27 +381,34 @@ namespace MonoSandbox
             }
             #endregion
         }
-
         #region List & Buttons
         public class ListManager : MonoBehaviour
         {
             GameObject MenuParent;
+
             public static GameObject ButtonTextBasic;
 
             public static GameObject ObjectsParent = null;
             public static GameObject ToolsParent = null;
             public static GameObject UtilsParent = null;
             public static GameObject WeaponsParent = null;
+            public static GameObject FunParent = null;
+
             GameObject SideButtonsParent;
             Canvas canvas;
+
             public static bool[] objectButtons = new bool[12];
             public static bool[] weaponButtons = new bool[12];
             public static bool[] toolButtons = new bool[8];
             public static bool[] utilButtons = new bool[4];
+            public static bool[] funButtons = new bool[2];
+
             string[] objectNames = new string[12] { "Box", "Sphere", "Bean", "Crate", "Barrel", "Wheel", "Couch", "Plane", "Body", "Gorilla", "Bathtub", "Soft Sphere" };
             string[] weaponNames = new string[8] { "Revolver", "Shotgun", "Melon Cannon", "Sniper", "C4", "Airstrike", "Laser Gun", "Banana Gun" };
             string[] toolNames = new string[8] { "Weld", "Thruster", "Spring", "Gravity Gun", "Colorize", "Freeze", "Toggle Gravity", "Balloon"};
             string[] utilNames = new string[4] { "Delete Balloons", "Delete Springs", "Delete Thrusters", "Delete All"};
+            string[] funNames = new string[1] { "Entity" };
+
             public static int currentPage;
 
             // Start is called before the first frame update
@@ -349,6 +420,7 @@ namespace MonoSandbox
                 WeaponsParent = Instantiate(new GameObject());
                 ToolsParent = Instantiate(new GameObject());
                 UtilsParent = Instantiate(new GameObject());
+                FunParent = Instantiate(new GameObject());
                 SideButtonsParent = Instantiate(new GameObject());
                 SideButtonsParent.name = "SideButtons";
                 SideButtonsParent.transform.SetParent(MenuParent.transform, false);
@@ -356,6 +428,7 @@ namespace MonoSandbox
                 AddPage(weaponNames, "Weapon", 4, WeaponsParent, 1);
                 AddPage(toolNames, "Tools", 4, ToolsParent, 2);
                 AddPage(utilNames, "Utils", 4, UtilsParent, 3);
+                AddPage(funNames, "Fun", 4, FunParent, 4);
                 monoList.transform.SetParent(Plugin.hand.transform, false);
                 monoList.transform.localPosition = new Vector3(0, 0, 0.05f);
                 monoList.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
@@ -370,6 +443,7 @@ namespace MonoSandbox
                     if (currentPage != 1) { WeaponsParent.SetActive(false); canvas.transform.GetChild(2).gameObject.SetActive(false); } else { WeaponsParent.SetActive(true); canvas.transform.GetChild(2).gameObject.SetActive(true); }
                     if (currentPage != 2) { ToolsParent.SetActive(false); canvas.transform.GetChild(4).gameObject.SetActive(false); } else { ToolsParent.SetActive(true); canvas.transform.GetChild(4).gameObject.SetActive(true); }
                     if (currentPage != 3) { UtilsParent.SetActive(false); canvas.transform.GetChild(6).gameObject.SetActive(false); } else { UtilsParent.SetActive(true); canvas.transform.GetChild(6).gameObject.SetActive(true); }
+                    if (currentPage != 4) { FunParent.SetActive(false); canvas.transform.GetChild(8).gameObject.SetActive(false); } else { FunParent.SetActive(true); canvas.transform.GetChild(8).gameObject.SetActive(true); }
                 }
             }
 
@@ -388,6 +462,7 @@ namespace MonoSandbox
                 sideButton.transform.SetParent(SideButtonsParent.transform, false);
                 sideButton.transform.localScale = new Vector3(0.02f, 0.07f, 0.225f);
                 sideButton.transform.localPosition = new Vector3(0, 0.085f - ((float)pIndex * 0.1f), 0.745f);
+                MaterialUtil.FixStandardShader(sideButton);
                 PageButton PageButtonScript = sideButton.AddComponent<PageButton>();
                 PageButtonScript.page = pIndex;
 
@@ -422,6 +497,8 @@ namespace MonoSandbox
                     objLabel.transform.position = button.transform.position + new Vector3(-0.015f, 0, 0);
                     objLabel.GetComponent<Text>().text = buttonNames[i];
                     objLabel.GetComponent<Text>().color = Color.black;
+
+                    MaterialUtil.FixStandardShader(button);
                 }
             }
         }
@@ -450,10 +527,24 @@ namespace MonoSandbox
                     if (ListManager.utilButtons[thisButton] == true) { gameObject.GetComponent<Renderer>().material.color = Color.blue; } else { gameObject.GetComponent<Renderer>().material.color = Color.white; }
                 }
                 else { ListManager.utilButtons = new bool[4]; }
+                if (ListManager.currentPage == 4)
+                {
+                    if (ListManager.funButtons[thisButton] == true) { gameObject.GetComponent<Renderer>().material.color = Color.blue; } else { gameObject.GetComponent<Renderer>().material.color = Color.white; }
+                }
+                else { ListManager.funButtons = new bool[2]; }
             }
             public int thisButton;
             private void OnTriggerEnter(Collider other)
             {
+                GorillaTriggerColliderHandIndicator component;
+                try {component = other.GetComponent<GorillaTriggerColliderHandIndicator>();}
+                catch{Debug.LogError("invalid presser");return;}
+
+                if (component.isLeftHand)
+                    return;
+
+                GorillaTagger.Instance.StartVibration(component.isLeftHand, GorillaTagger.Instance.tapHapticStrength / 2f, GorillaTagger.Instance.tapHapticDuration);
+
                 Debug.Log("Collided with " + other.gameObject.layer);
                 if (ListManager.currentPage == 0)
                 {
@@ -475,6 +566,12 @@ namespace MonoSandbox
                     ListManager.utilButtons = new bool[4];
                     ListManager.utilButtons[thisButton] = true;
                 }
+                if (ListManager.currentPage == 4)
+                {
+                    ListManager.funButtons = new bool[2];
+                    ListManager.funButtons[thisButton] = true;
+                }
+                // just use an list mono not an array >:(
             }
         }
         public class PageButton : MonoBehaviour
@@ -484,12 +581,29 @@ namespace MonoSandbox
             {
                 if (ListManager.currentPage == page) { gameObject.GetComponent<Renderer>().material.color = Color.blue; } else { gameObject.GetComponent<Renderer>().material.color = Color.white; }
             }
-            private void OnTriggerEnter()
+            private void OnTriggerEnter(Collider other)
             {
+                GorillaTriggerColliderHandIndicator component;
+                try { component = other.GetComponent<GorillaTriggerColliderHandIndicator>(); }
+                catch { Debug.LogError("invalid presser"); return; }
+
+                GorillaTagger.Instance.StartVibration(component.isLeftHand, GorillaTagger.Instance.tapHapticStrength / 2f, GorillaTagger.Instance.tapHapticDuration);
+
                 Debug.Log("Moved to page  " + page);
                 ListManager.currentPage = page;
             }
         }
         #endregion
+
+        [HarmonyPatch(typeof(GorillaTagger))]
+        [HarmonyPatch("Awake", MethodType.Normal)]
+        private class GorillaTaggerPatch
+        {
+            public static void Postfix(GorillaTagger __instance)
+            {
+                PluginInfo.leftHand = __instance.offlineVRRig.leftHandTransform.parent.Find("palm.01.L").gameObject;
+                PluginInfo.rightHand = __instance.offlineVRRig.rightHandTransform.parent.Find("palm.01.R").gameObject;
+            }
+        }
     }
 }

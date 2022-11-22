@@ -21,9 +21,8 @@ public class AirStrikeManager : MonoBehaviour
 
     void Update()
     {
-        RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
-        if(itemsFolder == null)
+        RaycastHit hitInfo = MonoSandbox.PluginInfo.raycastHit;
+        if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");
         }
