@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine.XR;
 using UnityEngine;
+using MonoSandbox.Components;
 
 public class RagdollManager : MonoBehaviour
 {
@@ -26,7 +27,7 @@ public class RagdollManager : MonoBehaviour
     void Update()
     {
         RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
+        hitInfo = MonoSandbox.PluginInfo.raycastHit;
         if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");
@@ -41,21 +42,18 @@ public class RagdollManager : MonoBehaviour
                 {
                     if (useGorilla)
                     {
-                        GameObject Ragdoll = Instantiate(GorillaModel);
-                        Ragdoll.GetComponent<Rigidbody>().interpolation = RigidbodyInterpolation.Interpolate;
-                        Ragdoll.name = Ragdoll.name + "MonoObject_Ragdoll";
-                        Ragdoll.transform.SetParent(itemsFolder.transform, false);
-                        foreach (Transform g in Ragdoll.transform.GetChild(0).GetComponentsInChildren<Transform>())
+                        GameObject gameObject = Instantiate(GorillaModel);
+                        gameObject.name += "MonoObject_Ragdoll";
+                        gameObject.transform.SetParent(itemsFolder.transform, false);
+                        foreach (Transform transform in gameObject.transform.GetChild(0).GetComponentsInChildren<Transform>())
                         {
-                            g.gameObject.layer = 8;
-                            g.name = g.name + "MonoObject";
+                            transform.gameObject.layer = 8;
+                            transform.name += "MonoObject";
                         }
-                        /*foreach(Rigidbody g in Ragdoll.transform.GetChild(0).GetComponentsInChildren<Rigidbody>())
-                        {
-                            g.interpolation = RigidbodyInterpolation.Interpolate;
-                        }*/
-                        Ragdoll.transform.position = hitInfo.point + new Vector3(0f, 0.45f, 0f);
+                        gameObject.transform.position = hitInfo.point + new Vector3(0f, 0.45f, 0f);
                         canPlace = false;
+                        MaterialUtil.FixStandardShadersInObject(gameObject);
+                        HapticManager.PlaceBlockHaptic();
                     }
                     else
                     {
@@ -72,6 +70,8 @@ public class RagdollManager : MonoBehaviour
                         Ragdoll.transform.GetChild(1).GetComponent<Renderer>().material.color = Color.grey;
                         Destroy(Ragdoll.GetComponent<MeshCollider>());
                         canPlace = false;
+                        MaterialUtil.FixStandardShadersInObject(RagdollModel);
+                        HapticManager.PlaceBlockHaptic();
                     }
                 }
             }

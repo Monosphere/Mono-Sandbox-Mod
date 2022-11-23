@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine.XR;
 using UnityEngine;
+using MonoSandbox.Components;
 
 public class ThrusterManager : MonoBehaviour
 {
@@ -31,8 +32,8 @@ public class ThrusterManager : MonoBehaviour
     void Update()
     {
         RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
-        if(itemsFolder == null)
+        hitInfo = MonoSandbox.PluginInfo.raycastHit; 
+        if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");
             print("serch");
@@ -50,8 +51,8 @@ public class ThrusterManager : MonoBehaviour
                     if (hitInfo.transform.gameObject.GetComponent<Rigidbody>() != null && hitInfo.transform.gameObject.name.Contains("MonoObject"))
                     {
                         GameObject Thruster = Instantiate(ThrusterModel);
-                        Thruster.transform.SetParent(hitInfo.transform, false);
-                        Thruster.transform.localScale = new Vector3(2f, 2f, 2f);
+                        Thruster.transform.SetParent(hitInfo.collider.transform, false);
+                        Thruster.transform.localScale = new Vector3(10f, 10f, 10f);
                         Thruster.transform.position = hitInfo.point;
                         Thruster.name = "Thruster MonoObject";
                         ThrusterControls control = Thruster.AddComponent<ThrusterControls>();
@@ -61,6 +62,7 @@ public class ThrusterManager : MonoBehaviour
                         Thruster.GetComponent<Renderer>().material.color = Color.black;
                         Thruster.transform.forward = -hitInfo.normal;
                         canPlace = false;
+                        MaterialUtil.FixStandardShadersInObject(Thruster);
                     }
                 }
             }

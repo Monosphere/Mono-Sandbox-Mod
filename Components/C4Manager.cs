@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine.XR;
 using UnityEngine;
+using MonoSandbox.Components;
 
 public class C4Manager : MonoBehaviour
 {
@@ -30,9 +31,8 @@ public class C4Manager : MonoBehaviour
 
     void Update()
     {
-        RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
-        if(itemsFolder == null)
+        RaycastHit hitInfo = MonoSandbox.PluginInfo.raycastHit;
+        if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");
             print("serch");
@@ -57,6 +57,7 @@ public class C4Manager : MonoBehaviour
                     bombDet.multiplier = multiplier;
                     C4.transform.localScale = new Vector3(1.4f, 1.4f, 1.4f);
                     canPlace = false;
+                    MaterialUtil.FixStandardShadersInObject(C4);
                 }
             }
             else { canPlace = true; }

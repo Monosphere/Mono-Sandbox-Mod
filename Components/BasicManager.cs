@@ -1,6 +1,9 @@
 ﻿using System;
 using UnityEngine.XR;
 using UnityEngine;
+using MonoSandbox;
+using MonoSandbox.Components;
+using UnityEngine.UIElements;
 
 public class BoxManager : MonoBehaviour
 {
@@ -25,9 +28,9 @@ public class BoxManager : MonoBehaviour
 
     void Update()
     {
-        RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
-        if(itemsFolder == null)
+        RaycastHit hitInfo = PluginInfo.raycastHit;
+
+        if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");
             print("serch");
@@ -66,6 +69,9 @@ public class BoxManager : MonoBehaviour
                         Box.GetComponent<Renderer>().material.color = Color.black;
                         Box.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
                         canPlace = false;
+
+                        MaterialUtil.FixStandardShadersInObject(Box);
+                        HapticManager.PlaceBlockHaptic();
                     }
                     else
                     {
@@ -87,6 +93,9 @@ public class BoxManager : MonoBehaviour
                         Box.GetComponent<Renderer>().material.color = Color.black;
                         Box.transform.localScale = new Vector3(0.6f, 0.6f, 0.1f);
                         canPlace = false;
+
+                        MaterialUtil.FixStandardShadersInObject(Box);
+                        HapticManager.PlaceBlockHaptic();
                     }
                 }
             }
@@ -124,13 +133,15 @@ public class SphereManager : MonoBehaviour
     bool canPlace;
     public bool editMode = true;
     public bool inRoom;
+    public bool isEnemy;
+    public bool isBouncy;
     public bool isSoftbody;
 
     GameObject Cursor = null;
     GameObject itemsFolder = null;
 
     public GameObject softbodySphere;
-
+    public GameObject entityOBJ;
 
     void OnGameInitialized(object sender, EventArgs e)
     {
@@ -143,8 +154,7 @@ public class SphereManager : MonoBehaviour
 
     void Update()
     {
-        RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
+        RaycastHit hitInfo = PluginInfo.raycastHit;
         if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");
@@ -159,7 +169,7 @@ public class SphereManager : MonoBehaviour
             {
                 if (canPlace)
                 {
-                    if (!isSoftbody)
+                    if (!isSoftbody && !isEnemy) // Regular
                     {
                         GameObject Ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                         Rigidbody BallRB = Ball.AddComponent<Rigidbody>();
@@ -179,7 +189,10 @@ public class SphereManager : MonoBehaviour
                         Ball.transform.position = hitInfo.point + Ball.transform.forward / 4;
                         Ball.GetComponent<Renderer>().material.color = Color.black;
                         Ball.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
-                    }else
+                        MaterialUtil.FixStandardShadersInObject(Ball);
+                        HapticManager.PlaceBlockHaptic();
+                    }
+                    else if (isSoftbody && !isEnemy) // Softbody
                     {
                         GameObject Ball = Instantiate(softbodySphere);
 
@@ -196,6 +209,22 @@ public class SphereManager : MonoBehaviour
                         Ball.transform.GetChild(1).GetComponent<Renderer>().material.color = Color.black;
                         Ball.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
                         BoneSphere rigidSphere = Ball.AddComponent<BoneSphere>();
+                        MaterialUtil.FixStandardShadersInObject(Ball);
+                        HapticManager.PlaceBlockHaptic();
+                    }
+                    else if (!isSoftbody && isEnemy) // Enemy
+                    {
+                        GameObject Ball = Instantiate(entityOBJ);
+
+                        Ball.name = "MonoObject";
+                        Ball.AddComponent<SphereCollider>();
+
+                        Enemy enemy = Ball.AddComponent<Enemy>();
+                        enemy.Health = 40f;
+                        enemy.Defence = 1.75f;
+
+                        Ball.transform.SetParent(itemsFolder.transform, false);
+                        Ball.transform.position = hitInfo.point + Vector3.up / 2f;
                     }
                     canPlace = false;
                 }
@@ -253,8 +282,7 @@ public class BeanManager : MonoBehaviour
 
     void Update()
     {
-        RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
+        RaycastHit hitInfo = PluginInfo.raycastHit;
         if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");
@@ -293,6 +321,8 @@ public class BeanManager : MonoBehaviour
                         Bean.transform.position = hitInfo.point + Bean.transform.up / 2.5f;
                         Bean.transform.localScale = new Vector3(15f, 15f, 15f);
                         canPlace = false;
+                        MaterialUtil.FixStandardShadersInObject(Bean);
+                        HapticManager.PlaceBlockHaptic();
                     }
                     if(!isWheel && !isBarrel)
                     {
@@ -315,6 +345,8 @@ public class BeanManager : MonoBehaviour
                         Bean.GetComponent<Renderer>().material.color = Color.black;
                         Bean.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
                         canPlace = false;
+                        MaterialUtil.FixStandardShadersInObject(Bean);
+                        HapticManager.PlaceBlockHaptic();
                     }
                     if (isWheel)
                     {
@@ -337,6 +369,8 @@ public class BeanManager : MonoBehaviour
                         Bean.transform.position = hitInfo.point + Bean.transform.up / 2.5f;
                         Bean.GetComponent<Renderer>().material.color = Color.black;
                         canPlace = false;
+                        MaterialUtil.FixStandardShadersInObject(Bean);
+                        HapticManager.PlaceBlockHaptic();
                     }
                 }
             }
@@ -382,8 +416,7 @@ public class BathManager : MonoBehaviour
 
     void Update()
     {
-        RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
+        RaycastHit hitInfo = PluginInfo.raycastHit;
         if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");
@@ -411,6 +444,8 @@ public class BathManager : MonoBehaviour
                     Bath.transform.position = hitInfo.point + Bath.transform.forward / 4;
                     Bath.transform.localScale = new Vector3(20f, 20f, 20f);
                     canPlace = false;
+                    MaterialUtil.FixStandardShadersInObject(Bath);
+                    HapticManager.PlaceBlockHaptic();
                 }
             }
             else { canPlace = true; }
@@ -471,8 +506,7 @@ public class CrateManager : MonoBehaviour
 
     void Update()
     {
-        RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
+        RaycastHit hitInfo = PluginInfo.raycastHit;
         if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");
@@ -505,6 +539,8 @@ public class CrateManager : MonoBehaviour
                     Crate.transform.localScale = new Vector3(20f, 20f, 20f);
                     userCollision.AddComponent<BoxCollider>().size = new Vector3(0.02f, 0.02f, 0.02f);
                     canPlace = false;
+                    MaterialUtil.FixStandardShadersInObject(Crate);
+                    HapticManager.PlaceBlockHaptic();
                 }
             }
             else { canPlace = true; }
@@ -550,8 +586,7 @@ public class CouchManager : MonoBehaviour
 
     void Update()
     {
-        RaycastHit hitInfo;
-        Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandTransform.position + GorillaLocomotion.Player.Instance.rightHandTransform.forward / 8, GorillaLocomotion.Player.Instance.rightHandTransform.forward, out hitInfo);
+        RaycastHit hitInfo = PluginInfo.raycastHit;
         if (itemsFolder == null)
         {
             itemsFolder = GameObject.Find("ItemFolderMono");
@@ -579,6 +614,8 @@ public class CouchManager : MonoBehaviour
                     Couch.transform.position = hitInfo.point + Vector3.up*0.4f;
                     Couch.transform.localScale = new Vector3(100f, 100f, 100f);
                     canPlace = false;
+                    MaterialUtil.FixStandardShadersInObject(Couch);
+                    HapticManager.PlaceBlockHaptic();
                 }
             }
             else { canPlace = true; }
