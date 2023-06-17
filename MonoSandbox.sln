@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.3.32819.101
+VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonoSandbox", "MonoSandbox.csproj", "{914AC51F-53F9-449E-AE94-6E900274EE7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonoSandbox", "MonoSandbox\MonoSandbox.csproj", "{5D2A9915-1400-4FA5-BBBA-D2F0D388E65C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{914AC51F-53F9-449E-AE94-6E900274EE7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{914AC51F-53F9-449E-AE94-6E900274EE7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{914AC51F-53F9-449E-AE94-6E900274EE7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{914AC51F-53F9-449E-AE94-6E900274EE7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D2A9915-1400-4FA5-BBBA-D2F0D388E65C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D2A9915-1400-4FA5-BBBA-D2F0D388E65C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D2A9915-1400-4FA5-BBBA-D2F0D388E65C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D2A9915-1400-4FA5-BBBA-D2F0D388E65C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {D2F04F8D-4DF0-47D6-9A58-14C9A0E87790}
+		SolutionGuid = {169FE927-E947-446E-9856-5225BDAA6E30}
 	EndGlobalSection
 EndGlobal
