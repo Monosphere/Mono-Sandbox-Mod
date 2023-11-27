@@ -532,19 +532,20 @@ public class GrenadeManager : MonoBehaviour
         GameObject ExplodeOBJ = Instantiate(Explode);
         ExplodeOBJ.transform.SetParent(transform);
         ExplodeOBJ.transform.localPosition = Holdable.transform.position;
-        ExplodeOBJ.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        ExplodeOBJ.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
 
         Collider[] colliders = Physics.OverlapSphere(Holdable.transform.position, 10f);
         foreach (Collider nearyby in colliders)
         {
             Rigidbody rig = nearyby.GetComponent<Rigidbody>();
-            rig?.AddExplosionForce(1500f * 4, Holdable.transform.position, 8f);
+            rig?.AddExplosionForce(1500f * 5, Holdable.transform.position, 8f);
 
             nearyby.GetComponent<BombDetonate>()?.Explode();
+            nearyby.GetComponent<MineDetonate>()?.Explode();
             nearyby.GetComponent<Explode>()?.ExplodeObject();
         }
         Rigidbody PlayerRigidbody = GorillaLocomotion.Player.Instance.GetComponent<Rigidbody>();
-        PlayerRigidbody.AddExplosionForce(2500f * 4, Holdable.transform.position, 5 + (0.75f * 4f));
+        PlayerRigidbody.AddExplosionForce(2500f * 5 * Mathf.Sqrt(PlayerRigidbody.mass), Holdable.transform.position, 5 + (0.75f * 5f));
 
         yield return new WaitForSeconds(3f);
 
