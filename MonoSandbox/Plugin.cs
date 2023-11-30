@@ -384,6 +384,8 @@ namespace MonoSandbox
                     gravityManager.editMode = false;
                     airstrikeManager.editMode = false;
                     couchManager.IsEditing = false;
+                    hammerManager.editMode = false;
+                    grenadeManager.editMode = false;
                 }
             }
             #endregion
